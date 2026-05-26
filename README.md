@@ -18,7 +18,7 @@ If you find an error in the plugin or have a question about its use, please let 
 ## Usage
 config.yml
 ```yaml
-Сообщения для групп (формат: группа: "сообщение")
+#Сообщения для групп (формат: группа: "сообщение")
 # Поддерживаются цвета через & (например &a) и HEX через &#RRGGBB
 # Плейсхолдеры PlaceholderAPI: %player_name%, %player_displayname% и др.
 join-messages:

@@ -14,3 +14,5 @@ commands:
     description: Управление сообщениями о входе
     usage: /join <addgroup|delgroup|setmsg|reload>
     aliases: [djoin]
+    permission: djoin.djoin
+    permission-message: "&cYou don't have permissions to do this!"

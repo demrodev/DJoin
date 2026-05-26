@@ -15,3 +15,28 @@ If you find an error in the plugin or have a question about its use, please let 
 - [Telegram](https://t.me/notromanenko)
 - [E-mail](mailto:nulledphp@vk.com)
 - [Issue tracker](https://github.com/demrodev/DJoin/issues)
+
+
+## Usage
+[QUOTE]config.yml
+[/QUOTE]
+[code=YAML]# Сообщения для групп (формат: группа: "сообщение")
+# Поддерживаются цвета через & (например &a) и HEX через &#RRGGBB
+# Плейсхолдеры PlaceholderAPI: %player_name%, %player_displayname% и др.
+join-messages:
+  default: "&7[&c?&7] &e%player_name% &7присоединился к серверу!"
+  vip: "&a[VIP] &e%player_name% &fзашёл на сервер!"
+  mvp: "&6MVP &e%player_name% &fзашёл на сервер благословить Вас!"[/code]
+
+## Commands:
+- /djoin addgroup (groupname) - adding LuckPerms group to config.yml
+- /djoin delgroup (groupname) - removing LuckPerms group from config.yml
+- /djoin setmsg (groupname) (message) - setting JoinMessage for someone group from config.yml
+##IMPORTANT! You need to use quotation marks on both sides when you type JoinMessage.
+-/djoin reload - reload configuration.
+## Permissions:
+- djoin.djoin - allows to use command /djoin
+## Features:
+- HEX-colors (&#RRGGBB)
+- PlaceholderAPI support
+- Simple color codes (like, &a-&f)

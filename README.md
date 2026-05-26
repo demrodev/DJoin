@@ -71,7 +71,7 @@ join-commands:
 - /djoin addgroup (groupname) - adding LuckPerms group to config.yml
 - /djoin delgroup (groupname) - removing LuckPerms group from config.yml
 - /djoin setmsg (groupname) (message) - setting JoinMessage for someone group from config.yml (IMPORTANT! You need to use quotation marks on both sides when you type JoinMessage.)
-- /djoin addcmd (groupname) ("command") - adding cmd which would execute when player join by Console.
+- /djoin addcmd (groupname) ("command") - adding cmd which would execute when player join by Console. (DON'T USE SLASH IN COMMAND)
 - /djoin delcmd (groupname) (index) - removing cmd from group.
 - /djoin listcmd (groupname) - get list and cmd indexes for group.
 - /djoin reload - reload configuration.

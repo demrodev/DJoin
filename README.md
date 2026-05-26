@@ -13,7 +13,7 @@ For the plugin to work properly, you need to install [LuckPerms](https://github.
 
 If you find an error in the plugin or have a question about its use, please let us know via: 
 - [Telegram](https://t.me/notromanenko)
-- [E-mail](mailto:help@demro.space)
+- [E-mail (help@demro.space)](mailto:help@demro.space)
 - [Issue tracker](https://github.com/demrodev/DJoin/issues)
 ## Usage
 config.yml

@@ -1,7 +1,6 @@
 package me.demro.dJoin.commands;
 
 import me.demro.dJoin.DJoin;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -9,9 +8,7 @@ import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class JoinCommand implements CommandExecutor, TabCompleter {
@@ -32,39 +29,92 @@ public class JoinCommand implements CommandExecutor, TabCompleter {
         switch (args[0].toLowerCase()) {
             case "addgroup":
                 if (args.length != 2) {
-                    sender.sendMessage(ChatColor.RED + "Использование: /join addgroup <название_группы>");
+                    sender.sendMessage(plugin.getPrefixedMessage("usage_addgroup", null));
                     return true;
                 }
                 plugin.addGroup(args[1]);
-                sender.sendMessage(ChatColor.GREEN + "Группа '" + args[1] + "' добавлена в конфиг. Не забудьте установить сообщение через /join setmsg.");
+                sender.sendMessage(plugin.getPrefixedMessage("group_added", Map.of("group", args[1])));
                 break;
 
             case "delgroup":
                 if (args.length != 2) {
-                    sender.sendMessage(ChatColor.RED + "Использование: /join delgroup <название_группы>");
+                    sender.sendMessage(plugin.getPrefixedMessage("usage_delgroup", null));
+                    return true;
+                }
+                if (plugin.getGroupMessage(args[1]) == null) {
+                    sender.sendMessage(plugin.getPrefixedMessage("group_not_found", Map.of("group", args[1])));
                     return true;
                 }
                 plugin.removeGroup(args[1]);
-                sender.sendMessage(ChatColor.GREEN + "Группа '" + args[1] + "' удалена из конфига.");
+                sender.sendMessage(plugin.getPrefixedMessage("group_removed", Map.of("group", args[1])));
                 break;
 
             case "setmsg":
                 if (args.length < 3) {
-                    sender.sendMessage(ChatColor.RED + "Использование: /join setmsg <название_группы> \"<сообщение>\"");
+                    sender.sendMessage(plugin.getPrefixedMessage("usage_setmsg", null));
                     return true;
                 }
-                String group = args[1];
+                String groupMsg = args[1];
                 String message = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
                 if (message.startsWith("\"") && message.endsWith("\"")) {
                     message = message.substring(1, message.length() - 1);
                 }
-                plugin.setGroupMessage(group, message);
-                sender.sendMessage(ChatColor.GREEN + "Сообщение для группы '" + group + "' установлено.");
+                plugin.setGroupMessage(groupMsg, message);
+                sender.sendMessage(plugin.getPrefixedMessage("msg_set", Map.of("group", groupMsg)));
+                break;
+
+            case "addcmd":
+                if (args.length < 3) {
+                    sender.sendMessage(plugin.getPrefixedMessage("usage_addcmd", null));
+                    return true;
+                }
+                String groupAdd = args[1];
+                String cmd = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
+                if (cmd.startsWith("\"") && cmd.endsWith("\"")) {
+                    cmd = cmd.substring(1, cmd.length() - 1);
+                }
+                plugin.addGroupCommand(groupAdd, cmd);
+                sender.sendMessage(plugin.getPrefixedMessage("cmd_added", Map.of("group", groupAdd)));
+                break;
+
+            case "delcmd":
+                if (args.length != 3) {
+                    sender.sendMessage(plugin.getPrefixedMessage("usage_delcmd", null));
+                    return true;
+                }
+                String groupDel = args[1];
+                try {
+                    int index = Integer.parseInt(args[2]);
+                    if (plugin.removeGroupCommand(groupDel, index)) {
+                        sender.sendMessage(plugin.getPrefixedMessage("cmd_removed", Map.of("group", groupDel, "index", String.valueOf(index))));
+                    } else {
+                        sender.sendMessage(plugin.getPrefixedMessage("cmd_invalid_index", null));
+                    }
+                } catch (NumberFormatException e) {
+                    sender.sendMessage(plugin.getPrefixedMessage("cmd_invalid_index", null));
+                }
+                break;
+
+            case "listcmd":
+                if (args.length != 2) {
+                    sender.sendMessage(plugin.getPrefixedMessage("usage_listcmd", null));
+                    return true;
+                }
+                String groupList = args[1];
+                List<String> cmds = plugin.listGroupCommands(groupList);
+                if (cmds.isEmpty()) {
+                    sender.sendMessage(plugin.getPrefixedMessage("cmd_list_empty", Map.of("group", groupList)));
+                } else {
+                    sender.sendMessage(plugin.getPrefixedMessage("cmd_list_header", Map.of("group", groupList)));
+                    for (int i = 0; i < cmds.size(); i++) {
+                        sender.sendMessage(plugin.getPrefixedMessage("cmd_list_entry", Map.of("index", String.valueOf(i), "command", cmds.get(i))));
+                    }
+                }
                 break;
 
             case "reload":
                 plugin.reload();
-                sender.sendMessage(ChatColor.GREEN + "Конфигурация перезагружена.");
+                sender.sendMessage(plugin.getPrefixedMessage("reload_success", null));
                 break;
 
             default:
@@ -75,21 +125,25 @@ public class JoinCommand implements CommandExecutor, TabCompleter {
     }
 
     private void sendHelp(CommandSender sender) {
-        sender.sendMessage(ChatColor.GOLD + "Команды DJoin:");
-        sender.sendMessage(ChatColor.YELLOW + "/join addgroup <группа> " + ChatColor.WHITE + " - добавить группу в конфиг");
-        sender.sendMessage(ChatColor.YELLOW + "/join delgroup <группа> " + ChatColor.WHITE + " - удалить группу из конфига");
-        sender.sendMessage(ChatColor.YELLOW + "/join setmsg <группа> \"сообщение\" " + ChatColor.WHITE + " - установить сообщение для группы");
-        sender.sendMessage(ChatColor.YELLOW + "/join reload " + ChatColor.WHITE + " - перезагрузить конфиг");
+        sender.sendMessage(plugin.getPrefixedMessage("help_header", null));
+        sender.sendMessage(plugin.getPrefixedMessage("help_addgroup", null));
+        sender.sendMessage(plugin.getPrefixedMessage("help_delgroup", null));
+        sender.sendMessage(plugin.getPrefixedMessage("help_setmsg", null));
+        sender.sendMessage(plugin.getPrefixedMessage("help_addcmd", null));
+        sender.sendMessage(plugin.getPrefixedMessage("help_delcmd", null));
+        sender.sendMessage(plugin.getPrefixedMessage("help_listcmd", null));
+        sender.sendMessage(plugin.getPrefixedMessage("help_reload", null));
     }
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            return Arrays.asList("addgroup", "delgroup", "setmsg", "reload").stream()
-                    .filter(s -> s.startsWith(args[0].toLowerCase()))
+            return Arrays.asList("addgroup", "delgroup", "setmsg", "addcmd", "delcmd", "listcmd", "reload")
+                    .stream().filter(s -> s.startsWith(args[0].toLowerCase()))
                     .collect(Collectors.toList());
-        } else if (args.length == 2 && (args[0].equalsIgnoreCase("delgroup") || args[0].equalsIgnoreCase("setmsg"))) {
-            // Предлагаем группы из конфига
+        }
+        if (args.length == 2 && (args[0].equalsIgnoreCase("delgroup") || args[0].equalsIgnoreCase("setmsg") ||
+                args[0].equalsIgnoreCase("addcmd") || args[0].equalsIgnoreCase("delcmd") || args[0].equalsIgnoreCase("listcmd"))) {
             return plugin.getConfig().getConfigurationSection("join-messages").getKeys(false).stream()
                     .filter(g -> g.startsWith(args[1]))
                     .collect(Collectors.toList());

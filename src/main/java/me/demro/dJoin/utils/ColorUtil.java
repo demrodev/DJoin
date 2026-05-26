@@ -5,6 +5,7 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.ChatColor;
 
 import java.util.HashMap;
@@ -15,31 +16,26 @@ public final class ColorUtil {
     private static final Map<Character, TextColor> LEGACY_COLOR_MAP = new HashMap<>();
 
     static {
-        // Legacy colors MineCraft
-        LEGACY_COLOR_MAP.put('0', TextColor.color(0x000000)); // black
-        LEGACY_COLOR_MAP.put('1', TextColor.color(0x0000AA)); // dark_blue
-        LEGACY_COLOR_MAP.put('2', TextColor.color(0x00AA00)); // dark_green
-        LEGACY_COLOR_MAP.put('3', TextColor.color(0x00AAAA)); // dark_aqua
-        LEGACY_COLOR_MAP.put('4', TextColor.color(0xAA0000)); // dark_red
-        LEGACY_COLOR_MAP.put('5', TextColor.color(0xAA00AA)); // dark_purple
-        LEGACY_COLOR_MAP.put('6', TextColor.color(0xFFAA00)); // gold
-        LEGACY_COLOR_MAP.put('7', TextColor.color(0xAAAAAA)); // gray
-        LEGACY_COLOR_MAP.put('8', TextColor.color(0x555555)); // dark_gray
-        LEGACY_COLOR_MAP.put('9', TextColor.color(0x5555FF)); // blue
-        LEGACY_COLOR_MAP.put('a', TextColor.color(0x55FF55)); // green
-        LEGACY_COLOR_MAP.put('b', TextColor.color(0x55FFFF)); // aqua
-        LEGACY_COLOR_MAP.put('c', TextColor.color(0xFF5555)); // red
-        LEGACY_COLOR_MAP.put('d', TextColor.color(0xFF55FF)); // light_purple
-        LEGACY_COLOR_MAP.put('e', TextColor.color(0xFFFF55)); // yellow
-        LEGACY_COLOR_MAP.put('f', TextColor.color(0xFFFFFF)); // white
+        LEGACY_COLOR_MAP.put('0', TextColor.color(0x000000));
+        LEGACY_COLOR_MAP.put('1', TextColor.color(0x0000AA));
+        LEGACY_COLOR_MAP.put('2', TextColor.color(0x00AA00));
+        LEGACY_COLOR_MAP.put('3', TextColor.color(0x00AAAA));
+        LEGACY_COLOR_MAP.put('4', TextColor.color(0xAA0000));
+        LEGACY_COLOR_MAP.put('5', TextColor.color(0xAA00AA));
+        LEGACY_COLOR_MAP.put('6', TextColor.color(0xFFAA00));
+        LEGACY_COLOR_MAP.put('7', TextColor.color(0xAAAAAA));
+        LEGACY_COLOR_MAP.put('8', TextColor.color(0x555555));
+        LEGACY_COLOR_MAP.put('9', TextColor.color(0x5555FF));
+        LEGACY_COLOR_MAP.put('a', TextColor.color(0x55FF55));
+        LEGACY_COLOR_MAP.put('b', TextColor.color(0x55FFFF));
+        LEGACY_COLOR_MAP.put('c', TextColor.color(0xFF5555));
+        LEGACY_COLOR_MAP.put('d', TextColor.color(0xFF55FF));
+        LEGACY_COLOR_MAP.put('e', TextColor.color(0xFFFF55));
+        LEGACY_COLOR_MAP.put('f', TextColor.color(0xFFFFFF));
     }
 
     private ColorUtil() {}
 
-    /**
-     * Converts a string with the color codes & (and HEX &#RRGGBB) to Component.
-     * Standard codes are supported: &0-9, &a-f, as well as &l, &m, &n, &O, &r.
-     */
     public static Component parse(String input) {
         if (input == null || input.isEmpty()) return Component.empty();
 
@@ -52,7 +48,6 @@ public final class ColorUtil {
         while (i < len) {
             char c = input.charAt(i);
             if (c == '&' && i + 1 < len) {
-                // The formatting code is found, we reset the accumulated text
                 if (textBuffer.length() > 0) {
                     builder.append(Component.text(textBuffer.toString()).style(currentStyle));
                     textBuffer.setLength(0);
@@ -60,26 +55,20 @@ public final class ColorUtil {
 
                 char code = input.charAt(i + 1);
                 if (code == '#') {
-                    // HEX-color: &#RRGGBB
                     if (i + 7 <= len && input.substring(i + 2, i + 8).matches("[0-9a-fA-F]{6}")) {
                         String hex = input.substring(i + 2, i + 8);
                         try {
                             TextColor color = TextColor.fromHexString("#" + hex);
                             currentStyle = currentStyle.color(color);
-                        } catch (IllegalArgumentException ignored) {
-                            // invalid HEX-color
-                            textBuffer.append("&#").append(hex);
-                        }
+                        } catch (IllegalArgumentException ignored) {}
                         i += 8;
                         continue;
                     } else {
-                        // incorrect HEX-color
                         textBuffer.append("&#");
                         i += 2;
                         continue;
                     }
                 } else {
-                    // Legacy code processing
                     ChatColor legacy = ChatColor.getByChar(code);
                     if (legacy != null) {
                         if (legacy == ChatColor.BOLD) {
@@ -95,7 +84,6 @@ public final class ColorUtil {
                         } else if (legacy == ChatColor.RESET) {
                             currentStyle = Style.empty();
                         } else {
-                            // Color
                             TextColor color = LEGACY_COLOR_MAP.get(code);
                             if (color != null) {
                                 currentStyle = currentStyle.color(color);
@@ -104,7 +92,6 @@ public final class ColorUtil {
                         i += 2;
                         continue;
                     } else {
-                        // Unknown color code
                         textBuffer.append('&').append(code);
                         i += 2;
                         continue;
@@ -119,7 +106,11 @@ public final class ColorUtil {
         if (textBuffer.length() > 0) {
             builder.append(Component.text(textBuffer.toString()).style(currentStyle));
         }
-
         return builder.build();
+    }
+
+    // Part of shit-code
+    public static String parseToString(String input) {
+        return LegacyComponentSerializer.legacySection().serialize(parse(input));
     }
 }

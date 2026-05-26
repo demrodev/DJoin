@@ -11,6 +11,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class JoinListener implements Listener {
@@ -23,36 +24,37 @@ public class JoinListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        // Disable default join msg
         event.setJoinMessage(null);
-
         Player player = event.getPlayer();
 
-        // ASync LP User
+        // ASync LuckPerms
         CompletableFuture<User> userFuture = plugin.getLuckPerms().getUserManager().loadUser(player.getUniqueId());
         userFuture.thenAcceptAsync(user -> {
             String primaryGroup = user.getPrimaryGroup();
-            String rawMessage = plugin.getGroupMessage(primaryGroup);
 
-            // Try default
+            // Send join msg
+            String rawMessage = plugin.getGroupMessage(primaryGroup);
             if (rawMessage == null || rawMessage.isEmpty()) {
                 rawMessage = plugin.getGroupMessage("default");
-                if (rawMessage == null || rawMessage.isEmpty()) {
-                    return;
-                }
+            }
+            if (rawMessage != null && !rawMessage.isEmpty()) {
+                String parsedMsg = plugin.setPlaceholders(player, rawMessage);
+                Component msgComponent = ColorUtil.parse(parsedMsg);
+                Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getServer().broadcast(msgComponent));
             }
 
-            // Use PlaceholderAPI
-            String parsed = plugin.setPlaceholders(player, rawMessage);
-
-            // Convert Colors and HEX to Component
-            Component messageComponent = ColorUtil.parse(parsed);
-
-            Bukkit.getScheduler().runTask(plugin, () -> {
-                Bukkit.getServer().broadcast(messageComponent);
-            });
+            // Cmds on join
+            List<String> commands = plugin.getGroupCommands(primaryGroup);
+            if (commands.isEmpty()) {
+                commands = plugin.getGroupCommands("default");
+            }
+            for (String cmd : commands) {
+                String parsedCmd = plugin.setPlaceholders(player, cmd);
+                final String finalCommand = parsedCmd;
+                Bukkit.getScheduler().runTask(plugin, () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), finalCommand));
+            }
         }).exceptionally(ex -> {
-            plugin.getLogger().warning("Can't get user's group " + player.getName() + ": " + ex.getMessage());
+            plugin.getLogger().warning("Ошибка получения группы для " + player.getName() + ": " + ex.getMessage());
             return null;
         });
     }

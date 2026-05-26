@@ -5,7 +5,7 @@
 
 
 ## Using
-The plugin has been tested and works stably on Minecraft version 1.21. Compatible with Paper-1.21
+The plugin has been tested and works stably on Minecraft version 1.21. Compatible with Paper-1.21+
 ## Extensions
 
 For the plugin to work properly, you need to install [LuckPerms](https://github.com/LuckPerms/LuckPerms) and [PlaceholderAPI](https://github.com/PlaceholderAPI/PlaceholderAPI). This is necessary for the plugin to correctly identify messages specific to special groups. The PlaceholderAPI allows you to customize messages using placeholders.
@@ -42,3 +42,4 @@ IMPORTANT! You need to use quotation marks on both sides when you type JoinMessa
 - HEX-colors (&#RRGGBB)
 - PlaceholderAPI support
 - Simple color codes (like, &a-&f)
+- Paper 1.21+ support

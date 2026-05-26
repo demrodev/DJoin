@@ -1,0 +1,7 @@
+# Сообщения для групп (формат: группа: "сообщение")
+# Поддерживаются цвета через & (например &a) и HEX через &#RRGGBB
+# Плейсхолдеры PlaceholderAPI: %player_name%, %player_displayname% и др.
+join-messages:
+  default: "&7[&c?&7] &e%player_name% &7присоединился к серверу!"
+  vip: "&a[VIP] &e%player_name% &fзашёл на сервер!"
+  mvp: "&6MVP &e%player_name% &fзашёл на сервер благословить Вас!"

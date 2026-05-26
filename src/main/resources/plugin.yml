@@ -1,0 +1,16 @@
+name: DJoin
+version: '${version}'
+
+main: me.demro.dJoin.DJoin
+api-version: '1.21'
+load: POSTWORLD
+author: DemRoDev
+website: t.me/notromanenko
+
+depend: [LuckPerms]
+softdepend: [PlaceholderAPI]
+commands:
+  join:
+    description: Управление сообщениями о входе
+    usage: /join <addgroup|delgroup|setmsg|reload>
+    aliases: [djoin]
